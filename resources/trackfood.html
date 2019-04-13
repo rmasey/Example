@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+
+    <title>CalCount</title>
+
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/js.cookie.min.js"></script>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script>
+
+        function pageLoad() {
+            console.log("Invoked pageLoad() ");
+
+            const todaysDate = new Date().toISOString().slice(0, 10);  //get todays's date as yyyy-mm-dd
+            $("#dateEaten").attr("value", todaysDate);  //set DateEaten date picker to today's date
+
+            document.getElementById("eatenForm").hidden = true ;
+            document.getElementById("buttonTrackFood").hidden = true ;
+
+            getFoodList();
+        }
+
+        /* function getFoodList() {
+
+             console.log("Invoked getFoodList() ");
+             const searchString = document.getElementById('searchString').value;  //or equiv const newWeight = $("#newWeight").val();
+
+             //send request to server to get data
+             $.ajax({
+                 type: "GET",
+                 url: "/food/list",
+                 data: {"searchString": searchString},
+                 success: response => {
+                     if(response.hasOwnProperty("Error:")) {  //checks if response from server has a key "Error:"
+                        alert(JSON.stringify(response));        // if it does, convert JSON object to string and alert
+                     } else {
+                         formatFoodList(response);           //other wise resoonse is JSON array, so format it for page
+                     }
+                 }
+             });
+         }*/
+
+        function getFoodList() {
+
+            console.log("Invoked getFoodList() ");
+            const searchString = document.getElementById('searchString').value;
+
+            const url = "/food/list?searchString=" + searchString;
+            fetch(url, {
+                method: "GET",
+            }).then(response => {                       //returns a promse
+                return response.json();                 //now return that promise to JSON
+            }).then(response => {
+                if (response.hasOwnProperty("Error:")) {   //checks if response from server has a key "Error:"
+                    alert(JSON.stringify(response));        // if it does, convert JSON object to string and alert
+                } else {
+                    formatFoodList(response);           //otherwise response is JSON array, so format it for page
+                }
+            });
+        }
+
+
+        function formatFoodList(data) {
+            console.log("Invoked formatFoodList() ");
+            console.log(data);
+
+            let dataHTML = '<tr><td>Food Description</td>' +
+                '<td>Serving Size</td>' +
+                '<td>Fibre Per Serving</td>' +
+                '<td>Fat Per Serving</td>' +
+                '<td>Sugars Per Serving</td>' +
+                '<td>Track</td></tr>';
+
+            for (let item of data) {
+                dataHTML += `<tr><td>`  + item.FoodID + `</td>` +
+                    `<td>`  + item.ServingSize + `</td>` +
+                    `<td>`  + item.FibrePerServing + `</td>` +
+                    `<td>`  + item.FatPerServing + `</td>` +
+                    `<td>`  + item.SugarsPerServing + `</td>` +
+                    `<td>  <button class="trackFood btn btn-primary"  data-FoodID=` + item.FoodID + ` >Track</button> </td></tr>`;   //problem here - just gets first word of food id!!! ****
+            }
+            document.getElementById("foodTable").innerHTML = dataHTML;
+
+            // document.getElementsByClassName("trackFood").addEventListener("click", function () {
+            //     // $("#eatenForm").show();  //show the form to allow the user to enter the eaten form
+            //     // $("#buttonTrackFood").show();
+            //     //
+            //     // const foodID = $(event.target).attr('data-FoodID');  //from the click event, get the foodID and store in form
+            //     //
+            //     // $("#foodID").val(foodID);
+            // });
+
+
+            document.addEventListener("click", function (event) {
+
+                if (event.target.matches('.trackFood')) {
+                    var foodID = event.target.getAttribute("data-FoodID");
+                    document.getElementById("eatenForm").hidden = false ;
+                    document.getElementById("buttonTrackFood").hidden = false;
+                    document.getElementById("foodID").value = foodID;
+                } else {
+                    return;
+                }
+            });
+        }
+
+        // $(".trackFood").click(event => {
+        //
+        //     $("#eatenForm").show();  //show the form to allow the user to enter the eaten form
+        //     $("#buttonTrackFood").show();
+        //
+        //     const foodID = $(event.target).attr('data-FoodID');  //from the click event, get the foodID and store in form
+        //     $("#foodID").val(foodID);
+        //
+        // });
+
+
+        function postEatenAdd() {
+            console.log("Invoked postEatenAdd() ");
+
+            const form = $('#eatenForm');
+
+            $.ajax({
+                url: '/eaten/add',
+                type: 'POST',
+                data: form.serialize(),
+                success: response => {
+                    if (response.startsWith("Error:")) {  //checks if response from server has a key "Error:"
+                        alert(response);        // if it does, convert JSON object to string and alert
+                    } else {
+                        window.open("welcome.html", "_self");
+                    }
+                }
+            });
+        }
+
+        function logout() {
+            console.log("logout - remove cookies and redirect to login page");
+            Cookies.remove("sessionToken");
+            window.location.href = "login.html";
+        }
+
+
+    </script>
+
+</head>
+
+<body onload="pageLoad()">
+<div class="center">
+
+    <button class="btn btn-success" onclick='logout();'>LOGOUT</button>
+
+    <img src="img/logo.png" class="logo" alt="CalCount logo">
+
+    <form>
+        <input type="text" class="form-control" id="searchString">
+    </form>
+
+    <button class="button" onclick='getFoodList();'>FIND FOOD</button>
+
+
+    <div id="table-wrapper">
+        <div id="table-scroll">
+
+            <table id="foodTable"></table>
+
+        </div>
+    </div>
+
+
+    <form id="eatenForm">
+        <select class="form-control" id='mealName' name='mealName'>
+            <option value="Breakfast">Breakfast</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Dinner">Dinner</option>
+            <option value="Snack">Snack</option>
+        </select>
+        <input type="text" class="form-control" id='serving' name='serving' placeholder="Serving">
+        <input type="date" class="form-control" id="dateEaten" name="dateEaten">
+        <input type="text" class="form-control" id="foodID" name="foodID">
+
+    </form>
+
+    <button class="button" id="buttonTrackFood" onclick='postEatenAdd();'>TRACK Food</button>
+
+</div>
+
+</body>
+
+</html>

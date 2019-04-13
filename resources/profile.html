@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+
+    <title>CalCount</title>
+
+    <link rel="shortcut icon" href="/webapp/favicon.ico" type="image/x-icon">
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/js.cookie.min.js"></script>
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+
+    <script>
+        "use strict";
+
+        function pageLoad() {
+            console.log("invoked pageLoad()");
+            userGet();
+        }
+
+        function userGet() {
+            console.log("invoked userGet()");
+            $.ajax({
+                type: "GET",
+                url: "/user/get",
+                success: response => {
+                    if(response.hasOwnProperty('Error:')) {     //method has to return JSON so check if object has key called Error:
+                        alert(response["Error:"]);
+                        window.open("login.html", "_self");
+                    } else {
+                        fillUserForm(response);
+                    }
+                }
+            });
+        }
+
+
+
+        function fillUserForm(data) {
+            console.log("invoked fillUserForm()");
+            console.log(data);
+
+            //put the values returned into the form fields
+            $("#firstName").val(data.FirstName);
+            $("#lastName").val(data.LastName);
+            $("#targetWeight").val(data.TargetWeight);
+            $("#caloriesPerDay").val(data.CaloriesPerDay);
+            $("#gender").val(data.Gender);
+            $("#username").val(data.Username);
+            $("#password").val(data.Password);
+            $("#profileImage").attr("src", data.ImageLink);
+        }
+
+        function validateForm() {
+            console.log("invoked validateForm()");
+
+            let valid = true;                               //assume form data is valid
+
+            $("#firstNameValidationText,#lastNameValidationText, #targetWeightValidationText").text("");         //clear these so if form validated again, messages are gone
+
+            if ($("#firstName").val() === "") {
+                $("#firstNameValidationText").text("Please enter your first name.");
+                valid = false;
+            }
+            if ($("#lastName").val() === "") {
+                $("#lastNameValidationText").text("Please enter your last name.");
+                valid = false;
+            }
+            if ($("#targetWeight").val() === "") {
+                $("#targetWeightValidationText").text("Please enter your target weight in kilograms");
+                valid = false;
+            }
+
+            if (valid === true) {
+                postUserUpdate();
+            }
+
+        }
+
+        function postUserUpdate() {
+            console.log("Invoked postUserUpdate()");
+            const form = $('#newUserForm');
+            $.ajax({
+                type: "POST",
+                url: "/user/update",
+                data: form.serialize(),  //uses name attribute of input tags
+                success: response => {
+                    if (response.toString().startsWith('Error:')) {     //make anything that's an error returned from server start with Error:
+                        alert(response);
+                    } else {
+                        window.open("profile.html", "_self");
+                    }
+                }
+            });
+        }
+
+
+        function uploadImage() {
+            console.log("invoked uploadImage()");
+            var fileInput = document.getElementById('the-file');
+            var file = fileInput.files[0];
+            var formData = new FormData();
+            formData.append('file', file);
+            $.ajax({
+                url: '/user/image',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: response => {
+                    if (response.toString().startsWith('Error:')) {     //make anything that's an error returned from server start with Error:
+                        alert(response);
+                    } else {
+                        window.open("profile.html", "_self");          //open welcome.html in the same tab
+                    }
+                }
+            });
+        }
+
+        function showUpLoadForm() {
+            $("#changepic").click($("#uploadForm").show(), $("#uploadImage").show());
+        }
+
+        function postDeleteUser() {
+            console.log("Invoked postUserDelete()");
+            confirm("Are you sure you want to delete your account?");
+            $.ajax({
+                type: "POST",
+                url: "/user/delete",
+                //no data needed just cookie
+                success: response => {
+                    if (response.toString().startsWith('Error:')) {
+                        alert(response);
+                    } else {
+                        window.open("login.html", "_self");
+                    }
+                }
+            });
+        }
+
+        function logout(){
+            console.log("logout - remove cookies and redirect to login page");
+            Cookies.remove("sessionToken");
+            window.location.href = "login.html";
+
+        }
+
+    </script>
+
+</head>
+
+<body onload="pageLoad()" class="center">
+<button class="btn btn-success"  onclick='logout();'>LOGOUT</button>
+
+<img src="img/logo.png" alt="CalCount logo" class="logo">
+
+Tell us about yourself
+
+<img class="profileImage" id="profileImage" alt="profile picture" src=""/>
+
+<form id="newUserForm">
+
+
+    <input type="text" class="form-control" id="firstName" name='firstName' placeholder="First name (requried)">
+    <div id="firstNameValidationText"></div>
+
+    <input type="text" class="form-control" id="lastName" name='lastName' placeholder="Last name (requried)">
+    <div id="lastNameValidationText"></div>
+
+    <input type="text" class="form-control" id="targetWeight" name='targetWeight'
+           placeholder="Target Weight in KG (requried)">
+    <div id="targetWeightValidationText"></div>
+
+    <input type="text" class="form-control" id='caloriesPerDay' name='caloriesPerDay'
+           placeholder="Maximum calories per day (requried) ">
+
+    <select id='gender' name="gender" class="form-control">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+    </select>
+
+    <input type="text" class="form-control" id='username' name='username' placeholder="Username (requried)">
+    <input type="password" class="form-control" id='password' name='password' placeholder="Password (requried)">
+
+
+</form>
+
+<div align="center">
+
+    <button class="button" onclick='validateForm();'>UPDATE</button>
+
+    <button class="button" onclick='postDeleteUser();'>DELETE USER ACCOUNT</button>
+
+
+</div>
+
+
+<button id="changepic" onclick='showUpLoadForm();' class="button">CHANGE PROFILE PICTURE</button>
+
+
+<form id="uploadForm" enctype="multipart/form-data" style="display: none;">
+    <input id="the-file" name="file" type="file">
+</form>
+
+<button id="uploadImage" class="button" onclick='uploadImage();' style="display: none;">UPLOAD IMAGE</button>
+
+
+</body>
+
+</html>
