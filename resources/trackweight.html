@@ -5,16 +5,9 @@
 
     <title>CalCount</title>
 
-    <link rel="shortcut icon" href="/webapp/favicon.ico" type="image/x-icon">
     <script src="/js/jquery-3.3.1.min.js"></script>
-    <script src="/js/popper.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/js.cookie.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
-    <script src="/js/moment.js"></script>
-    <script src="/js/moment-with-locales.js"></script>
-    <script src="/js/require.js"></script>
-
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
 
@@ -25,55 +18,59 @@
         function pageLoad() {
             console.log("invoked pageLoad()");
             var todaysDate = new Date().toISOString().slice(0, 10);  //get today's date as yyyy-mm-dd
-            $("#datepicker").attr("value", todaysDate);  //set DateEaten date picker to today's date
+            document.getElementById("datepicker").setAttribute("value", todaysDate);  //set DateEaten date picker to today's date
             getWeightList();
 
         }
 
-//        function drawnewgraph(){
-            //test code for getting a graph to load from JSON array, might be useful for others
-//            console.log("invoked drawnewgraph()");
-//            var data = [{"gender": "male", "score" : 3}, {"gender": "female", "score" : 13}];
-//
-//            var labels = data.map(function (e) {
-//                return e.gender;
-//            });
-//            var scores = data.map(function (e) {
-//                return e.score;
-//            });
-//
-//            var ctx = document.getElementById("myChart2").getContext("2d");
-//            var config = {
-//                type: 'bar',
-//                data: {
-//                    labels: labels,
-//                    datasets: [{
-//                        label: 'Average scores by gender',
-//                        data: scores,
-//                        backgroundColor: 'rgba(0, 119, 204, 0.3)'
-//                    }]
-//                },
-//
-//            };
-//
-//            var chart= new Chart(ctx, config);
-//        }
-
+        //        function drawnewgraph(){
+        //test code for getting a graph to load from JSON array, might be useful for others
+        //            console.log("invoked drawnewgraph()");
+        //            var data = [{"gender": "male", "score" : 3}, {"gender": "female", "score" : 13}];
+        //
+        //            var labels = data.map(function (e) {
+        //                return e.gender;
+        //            });
+        //            var scores = data.map(function (e) {
+        //                return e.score;
+        //            });
+        //
+        //            var ctx = document.getElementById("myChart2").getContext("2d");
+        //            var config = {
+        //                type: 'bar',
+        //                data: {
+        //                    labels: labels,
+        //                    datasets: [{
+        //                        label: 'Average scores by gender',
+        //                        data: scores,
+        //                        backgroundColor: 'rgba(0, 119, 204, 0.3)'
+        //                    }]
+        //                },
+        //
+        //            };
+        //
+        //            var chart= new Chart(ctx, config);
+        //        }
 
 
         function getWeightList() {
             console.log("invoked getWeightList()");
-            $.ajax({
-                type: "GET",
-                url: "/weight/list",
-                success: response => {
-                    if(response.hasOwnProperty("Error:")) {  //checks if response from server has a key "Error:"
-                        alert(JSON.stringify(response));        // if it does, convert JSON object to string and alert
-                    } else {
-                        formatWeightList(response);
-                    }
+
+            const url = "/weight/list";
+
+            fetch(url, {
+                method: "GET",
+            }).then(response => {                       //returns a promse
+                return response.json();                 //now return that promise to JSON
+            }).then(response => {
+                if (response.hasOwnProperty("Error:")) {   //checks if response from server has a key "Error:"
+                    alert(JSON.stringify(response));        // if it does, convert JSON object to string and alert
+                } else {
+                    formatWeightList(response);
                 }
             });
+
+
         }
 
         function formatWeightList(data) {
@@ -86,25 +83,24 @@
             let firstItemWeight;
             let lastItemWeight;
 
-            if (data === undefined || data.length === 0){
+            if (data === undefined || data.length === 0) {
                 firstItemWeight = "No Weight Recorded";
             } else {
                 firstItemWeight = data[0].WeightInKG;
                 console.log(firstItemWeight);
             }
-            $("#currentWeight").text(firstItemWeight);
+
+            document.getElementById("currentWeight").innerHTML = firstItemWeight;
+            // $("#currentWeight").text(firstItemWeight);
 
             const dataSize = data.length;
 
-            if (data === undefined || data.length === 0){
+            if (data === undefined || data.length === 0) {
                 lastItemWeight = "No Weight Recorded";
             } else {
                 lastItemWeight = data[dataSize - 1].WeightInKG;
-                $("#weightChange").text(firstItemWeight - lastItemWeight);
+                document.getElementById("weightChange").innerHTML = firstItemWeight - lastItemWeight;
             }
-
-
-
 
 
             let dataHTML = '<tr><td>Date</td>' +
@@ -117,7 +113,7 @@
                     `<td>${item.WeightInKG}</td>` +
                     `<td>  <button class="deleteWeight btn btn-danger"  data-WeightID="${item.WeightID}" >Delete</button> </td></tr>`;
             }
-            $('#weightTable').html(dataHTML);
+            document.getElementById("weightTable").innerHTML = dataHTML;
 
 
             $(".deleteWeight").click(event => {
@@ -130,7 +126,7 @@
                     type: 'POST',
                     data: {"weightID": weightID},
                     success: response => {
-                        if(response.startsWith("Error:")) {  //checks if response from server has a key "Error:"
+                        if (response.startsWith("Error:")) {  //checks if response from server has a key "Error:"
                             alert(response);        // if it does, convert JSON object to string and alert
                         } else {
                             pageLoad();
@@ -138,7 +134,6 @@
                     }
                 });
             });
-
 
 
         }
@@ -207,25 +202,27 @@
             const date = document.getElementById('datepicker').value;
             const weightInKG = document.getElementById('weightInKG').value;  //or const newWeight = $("#newWeight").val();
 
-            $.ajax({
-                type: "POST",
-                url: "/weight/add",
-                data: {"date": date, "weightInKG": weightInKG},
+            var url = "/weight/add";
+            var formData = new FormData();
+            formData.append('date', date);
+            formData.append('weightInKG', weightInKG);
 
-                success: response => {
-                    if (response.toString().startsWith('Error:')) {
-                        alert(response);
-                    } else {
-                        getWeightList();
-                    }
+            fetch(url, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                return response.text()          //method returns a promise, have to return from here to get text
+            }).then(response => {
+                if (response.startsWith('Error:')) {
+                    alert(response);
+                } else {
+                    getWeightList();
                 }
-
-
             });
 
         }
 
-        function logout(){
+        function logout() {
             console.log("logout - remove cookies and redirect to login page");
             Cookies.remove("sessionToken");
             window.location.href = "login.html";
@@ -239,14 +236,14 @@
 
 <body class="center" onload="pageLoad()">
 
-<button class="btn btn-success"  onclick='logout();'>LOGOUT</button>
+<button class="btn btn-success" onclick='logout();'>LOGOUT</button>
 
-<div >
+<div>
 
     <img src="img/logo.png" class="logo" alt="CalCount logo">
     <br>
     Current Weight: <span id="currentWeight"></span> Weight change: <span id="weightChange"></span>
-    <form >
+    <form>
         <input type="date" class="form-control" id="datepicker">
         <input type="text" class="form-control" id='weightInKG' placeholder="Current Weight in KG">
     </form>
@@ -258,8 +255,6 @@
     </div>
 
 
-
-
     <div id="table-wrapper">
         <div id="table-scroll">
             <table id="weightTable"></table>
@@ -267,13 +262,12 @@
     </div>
 
 
-
-
     <div class="container">
         <canvas id="myChart2"></canvas>
     </div>
 
 
-</div></body>
+</div>
+</body>
 
 </html>
