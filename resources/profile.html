@@ -6,14 +6,10 @@
     <title>CalCount</title>
 
 
-    <script src="/js/jquery-3.3.1.min.js"></script>
-
-    <script src="/js/bootstrap.min.js"></script>
     <script src="/js/js.cookie.min.js"></script>
-
+    <script src="/js/bootstrap.min.js"></script>
 
     <link rel="stylesheet" href="/css/bootstrap.min.css">
-
     <link rel="stylesheet" href="/css/style.css">
 
 
@@ -28,9 +24,7 @@
         function userGet() {
             console.log("invoked userGet()");
 
-            const searchString = document.getElementById('searchString').value;
             const url = "/user/get";
-
             fetch(url, {
                 method: "GET",
             }).then(response => {                       //returns a promse
@@ -54,7 +48,6 @@
             console.log(data);
 
             //put the values returned into the form fields
-
             document.getElementById("firstName").value = data.FirstName;
             document.getElementById("lastName").value = data.LastName;
             document.getElementById("targetWeight").value = data.TargetWeight;
@@ -138,34 +131,18 @@
                 }
             });
 
-
-            // $.ajax({
-            //     url: '/user/image',
-            //     type: 'POST',
-            //     data: formData,
-            //     processData: false,
-            //     contentType: false,
-            //     success: response => {
-            //         if (response.toString().startsWith('Error:')) {     //make anything that's an error returned from server start with Error:
-            //             alert(response);
-            //         } else {
-            //             window.open("profile.html", "_self");          //open welcome.html in the same tab
-            //         }
-            //     }
-            });
         }
 
         function showUpLoadForm() {
-            $("#changepic").click($("#uploadForm").show(), $("#uploadImage").show());
+            document.getElementById("changepic").style.display = "none";
+            document.getElementById("uploadForm").style.display = "block";
         }
 
         function postDeleteUser() {
             console.log("Invoked postUserDelete()");
             confirm("Are you sure you want to delete your account?");
 
-
             const url = "/user/delete";
-
             fetch(url, {
                 method: "POST",  //no data needed, just cookie which is sent automatically
             }).then(response => {
@@ -177,15 +154,12 @@
                     window.open("login.html", "_self");
                 }
             });
-
-
         }
 
         function logout(){
             console.log("logout - remove cookies and redirect to login page");
             Cookies.remove("sessionToken");
             window.location.href = "login.html";
-
         }
 
     </script>
