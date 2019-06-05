@@ -20,7 +20,6 @@
 
             const todaysDate = new Date().toISOString().slice(0, 10);  //get todays's date as yyyy-mm-dd
             document.getElementById("dateEaten").setAttribute("value", todaysDate);  //set DateEaten date picker to today's date
-            //$("#dateEaten").attr("value", todaysDate);
 
             document.getElementById("eatenForm").hidden = true ;
             document.getElementById("buttonTrackFood").hidden = true ;
@@ -71,9 +70,7 @@
             }
             document.getElementById("foodTable").innerHTML = dataHTML;
 
-
             document.addEventListener("click", function (event) {
-
                 if (event.target.matches('.trackFood')) {
                     var foodID = event.target.getAttribute("data-FoodID");
                     document.getElementById("eatenForm").hidden = false ;
@@ -99,20 +96,22 @@
         function postEatenAdd() {
             console.log("Invoked postEatenAdd() ");
 
-            const form = $('#eatenForm');
+            var url = "/eaten/add";
+            const formData = new FormData(document.getElementById('eatenForm'));
 
-            $.ajax({
-                url: '/eaten/add',
-                type: 'POST',
-                data: form.serialize(),
-                success: response => {
-                    if (response.startsWith("Error:")) {  //checks if response from server has a key "Error:"
-                        alert(response);        // if it does, convert JSON object to string and alert
-                    } else {
-                        window.open("welcome.html", "_self");
-                    }
+            fetch(url, {
+                method: "POST",
+                body: formData,
+            }).then(response => {
+                return response.text()          //method returns a promise, have to return from here to get text
+            }).then(response => {
+                if (response.startsWith('Error:')) {
+                    alert(response);
+                } else {
+                    window.open("welcome.html", "_self");
                 }
             });
+
         }
 
         function logout() {
