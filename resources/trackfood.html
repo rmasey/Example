@@ -19,7 +19,8 @@
             console.log("Invoked pageLoad() ");
 
             const todaysDate = new Date().toISOString().slice(0, 10);  //get todays's date as yyyy-mm-dd
-            $("#dateEaten").attr("value", todaysDate);  //set DateEaten date picker to today's date
+            document.getElementById("dateEaten").setAttribute("value", todaysDate);  //set DateEaten date picker to today's date
+            //$("#dateEaten").attr("value", todaysDate);
 
             document.getElementById("eatenForm").hidden = true ;
             document.getElementById("buttonTrackFood").hidden = true ;
@@ -27,25 +28,7 @@
             getFoodList();
         }
 
-        /* function getFoodList() {
 
-             console.log("Invoked getFoodList() ");
-             const searchString = document.getElementById('searchString').value;  //or equiv const newWeight = $("#newWeight").val();
-
-             //send request to server to get data
-             $.ajax({
-                 type: "GET",
-                 url: "/food/list",
-                 data: {"searchString": searchString},
-                 success: response => {
-                     if(response.hasOwnProperty("Error:")) {  //checks if response from server has a key "Error:"
-                        alert(JSON.stringify(response));        // if it does, convert JSON object to string and alert
-                     } else {
-                         formatFoodList(response);           //other wise resoonse is JSON array, so format it for page
-                     }
-                 }
-             });
-         }*/
 
         function getFoodList() {
 
@@ -87,15 +70,6 @@
                     `<td>  <button class="trackFood btn btn-primary"  data-FoodID=` + item.FoodID + ` >Track</button> </td></tr>`;   //problem here - just gets first word of food id!!! ****
             }
             document.getElementById("foodTable").innerHTML = dataHTML;
-
-            // document.getElementsByClassName("trackFood").addEventListener("click", function () {
-            //     // $("#eatenForm").show();  //show the form to allow the user to enter the eaten form
-            //     // $("#buttonTrackFood").show();
-            //     //
-            //     // const foodID = $(event.target).attr('data-FoodID');  //from the click event, get the foodID and store in form
-            //     //
-            //     // $("#foodID").val(foodID);
-            // });
 
 
             document.addEventListener("click", function (event) {

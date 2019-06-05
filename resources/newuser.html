@@ -19,7 +19,6 @@
     <script>
 
         function validateForm() {
-
             console.log("invoked validateForm()");
 
             let valid = true;                               //assume form data is valid
@@ -42,8 +41,7 @@
 
             if (!document.getElementById("email").checkValidity()) {
                 valid = false;
-                //clear the field because the email address is not valid!
-                document.getElementById('email').value = '';
+                document.getElementById('email').value = '';   //clear the field because the email address is not valid!
                 $("#emailValidationText").text("Please enter a valid email address");
             }
 
@@ -57,29 +55,6 @@
             }
 
         }
-
-        // function postUserAdd() {
-        //
-        //     console.log("invoked postUserAdd()");
-        //
-        //     const form = $('#newUserForm');
-        //
-        //     $.ajax({
-        //         type: "POST",
-        //         url: "/user/add",
-        //         data: form.serialize(),  //uses name attribute of input tags
-        //         success: response => {
-        //             if (response.toString().startsWith('Error:')) {
-        //                 alert(response);
-        //             } else {
-        //                 alert("New account created.  Please log in");
-        //                 window.open("login.html", "_self");
-        //
-        //             }
-        //
-        //         }
-        //     });
-        // }
 
 
         function postUserAdd() {
