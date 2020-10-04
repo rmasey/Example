@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+
+    <style>
+        table {
+            border-collapse: collapse;
+            border: 1px solid black;
+        }
+    </style>
+
+    <title>Accommodation Reviews</title>
+
+    <script>
+
+        "use strict";                                               	// in strict mode, helps you write cleaner code for example can't use undeclared variables,
+
+        function pageLoad() {                                       	// use this method to run code when you page has loaded eg check user is logged in, add data to a table
+            console.log("Invoked pageLoad() ");                     	//  your BFF for debugging!!! Don't use alerts as you'll have to remove all of them in final version
+
+            const url = "/review/list/";	// API method on webserver will be in Weight class with @Path of list
+
+            fetch(url, {
+                method: "GET",
+            }).then(response => {
+                return response.json();                 //return response to JSON
+            }).then(response => {
+                if (response.hasOwnProperty("Error")) { //checks if response from server has a key "Error"
+                    alert(JSON.stringify(response));    // if it does, convert JSON object to string and alert
+                } else {
+                    formatReviews(response);
+                }
+            });
+        }
+
+
+
+        function formatReviews(response) {
+            let dataHTML = "";
+
+            //clear the string
+            for (let item of response) {                            //creates a table with rows for every item in JSON array and a button - how cool?  Very
+                dataHTML += "<tr><td>" + item.ReviewerName + "</td><td>" + item.AccommodationName + "</td><td> <button class='alertReviewID'  data-itemID='" + item.ReviewID + "'>Click Me</button></td></tr>";
+            }
+            document.getElementById("tblReviews").innerHTML += dataHTML;
+
+
+            document.addEventListener("click", function (event) {
+                if (event.target.matches('.alertReviewID')) {                      //alertItemName is the class we gave all the button elements
+                    var itemID = event.target.getAttribute("data-itemID");        //data-itemID is an attribute we gave the button
+                    alert("You clicked on " + itemID);
+                }
+            });
+
+        }
+
+
+    </script>
+
+
+</head>
+
+<body>
+
+<body onload="pageLoad()">
+
+Welcome to the reviews
+
+
+<BR>
+<BR>
+<table id="tblReviews"></table>
+
+
+</body>
+
+</html>
