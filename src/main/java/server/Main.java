@@ -19,8 +19,6 @@ public class Main {
 
     public static void main(String[] args) {
 
-        SendEmail.sendMail();
-
         openDatabase("AccommodationReviews.db");             //connect to our database file, when you stop the server the connection to the database
         // is closed and you can access it through SQLite Studio
 
