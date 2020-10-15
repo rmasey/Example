@@ -58,11 +58,25 @@
 
     geojson = L.geoJson(countries).addTo(map);
 
+
     geojson.eachLayer(function (layer) {
         layer.bindPopup(layer.feature.properties.ADMIN);
+
+        layer.on('click', function(e) {
+
+            let countryName = layer.feature.properties.ADMIN;
+             alert('Country clicked is ' + countryName);
+
+            //call function to retrieve data on this country
+
+        });
     });
 
     map.setView({ lat: 47.040182144806664, lng: 9.667968750000002 }, 4);
+
+
+
+
 </script>
 
 
