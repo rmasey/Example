@@ -138,10 +138,17 @@
             <version>2.3.1</version>
         </dependency>
 
+        <!-- test for Josh - to screen scrape web page -->
+
+        <dependency>
+            <groupId>net.sourceforge.htmlunit</groupId>
+            <artifactId>htmlunit</artifactId>
+            <version>2.44.0</version>
+        </dependency>
+
+
+
     </dependencies>
-
-
-
 
 
 </project>

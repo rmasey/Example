@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exercises</title>
+
+
+    <script>
+        function getExercises() {
+            console.log("invoked getExercises()");
+
+            const uniqueIdentifier = document.getElementById("uniqueIdentifier").value;
+
+            //  this is an example unique identifier  - 9fcecebe-61a5-474d-b9dd-babe608372ac
+            //you could use this for testing
+
+            const url = "/patientexercise/list/";		// or whatever your API was
+
+            fetch(url + uniqueIdentifier, {
+                method: "GET",
+            }).then(response => {
+                return response.json();                 //return response to JSON
+            }).then(response => {
+                if (response.hasOwnProperty("Error")) { //checks if response from server has a key "Error"
+                    alert(JSON.stringify(response));    // if it does, convert JSON object to string and alert
+                } else {
+                    formatExerciseist(response);
+                }
+            });
+        }
+
+        function formatExerciseList(response){
+            console.log("invoked formatExerciseList()");
+
+            //write code here to create a table with all the exercises
+
+
+        }
+
+
+    </script>
+
+</head>
+<body>
+
+<input type="text" id="uniqueIdentifier"> Enter your unique identifier from your email
+
+<button onclick="getExercises()"> SUBMIT</button>
+
+
+</body>
+</html>
